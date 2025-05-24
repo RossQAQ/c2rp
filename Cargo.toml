@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = ["route-painter", "sec-loader"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Ross <rossqaq@outlook.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/RossQAQ/c2rp"
+
+[workspace.dependencies]
+# 在这里可以定义工作区级别的依赖版本
+# 子项目可以通过 workspace = true 来继承这些版本
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+clap = { version = "4.0", features = ["derive"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+[profile.dev]
+opt-level = 0
+debug = true
+split-debuginfo = "unpacked"
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.test]
+opt-level = 0
+debug = true
