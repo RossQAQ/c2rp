@@ -7,3 +7,4 @@ edition = "2024"
 nom = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+num_enum = { workspace = true }
