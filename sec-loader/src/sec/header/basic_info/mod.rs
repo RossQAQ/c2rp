@@ -7,14 +7,15 @@ use crate::err::SecError;
 /// ! fix: 这里可能变量名错误
 #[derive(Debug)]
 pub struct BasicInfo {
-    /// number of vertices
-    vertex_num: i32,
+    /// number of plumb lines
+    pub(super) plumb_line: i32,
 
-    border_num: i32,
+    /// number of borders
+    pub(super) border_num: i32,
 
-    district_num: i32,
+    pub(super) district_num: i32,
 
-    special: i32,
+    pub(super) special: i32,
 }
 
 impl BasicInfo {
@@ -40,7 +41,7 @@ impl BasicInfo {
         Ok((
             ret,
             Self {
-                vertex_num,
+                plumb_line: vertex_num,
                 border_num,
                 district_num,
                 special,

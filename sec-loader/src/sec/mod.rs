@@ -5,7 +5,7 @@ pub mod tail;
 use nom::IResult;
 use std::path::PathBuf;
 
-use body::SecMain;
+use body::SecBody;
 use header::SecHeader;
 use tail::SecTail;
 
@@ -25,11 +25,18 @@ impl SecRaw {
 
     pub fn parse(&mut self) -> anyhow::Result<Sec> {
         let (next, header) = self.parse_header()?;
+
+        let (next, body) = self.parse_body(header)?;
+
         todo!()
     }
 
     pub fn parse_header(&mut self) -> IResult<&[u8], SecHeader, SecError> {
         SecHeader::from_raw(&self.data)
+    }
+
+    pub fn parse_body(&mut self, header: SecHeader) -> IResult<&[u8], SecBody, SecError> {
+        SecBody::from_raw(&self.data, header)
     }
 }
 
@@ -46,7 +53,7 @@ pub struct Sec {
     pub header: SecHeader,
 
     /// sec main body
-    pub main: SecMain,
+    pub main: SecBody,
 
     /// sec tail
     pub tail: SecTail,

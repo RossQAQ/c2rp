@@ -30,6 +30,23 @@ impl SecHeader {
             },
         ))
     }
+
+    /// number of plumb lines
+    pub fn plumb_lines(&self) -> i32 {
+        self.basic_info.plumb_line
+    }
+
+    pub fn border_num(&self) -> i32 {
+        self.basic_info.border_num
+    }
+
+    pub fn district_num(&self) -> i32 {
+        self.basic_info.district_num
+    }
+
+    pub fn special(&self) -> i32 {
+        self.basic_info.special
+    }
 }
 
 #[cfg(test)]
