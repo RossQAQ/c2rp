@@ -1,5 +1,3 @@
-use std::ffi::CStr;
-
 use crate::err::SecError;
 use crate::utils::convert_cstr_byte_until_null_to_string;
 use nom::bytes::complete::take;
@@ -7,7 +5,7 @@ use nom::multi::count;
 use nom::{IResult, Parser};
 
 /// SEC header Token part.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct SecToken {
     /// number of tokens
     count: i32,

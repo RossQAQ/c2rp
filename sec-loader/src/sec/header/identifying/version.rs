@@ -14,7 +14,7 @@ pub enum SecVersion {
     C3 = 0x200000001,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct VersionSign {
     /// version
     version: SecVersion,

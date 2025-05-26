@@ -8,7 +8,7 @@ mod basic_info;
 mod identifying;
 
 /// SEC header part.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SecHeader {
     /// identifying part
     identifying: Identify,
@@ -56,7 +56,6 @@ mod tests {
     #[test]
     fn parse_sec_header() {
         let data = std::fs::read("../test_sec/TU01EX.SEC").unwrap();
-        let (_, header) = SecHeader::from_raw(&data).unwrap();
-        println!("{:?}", header);
+        let (_, _header) = SecHeader::from_raw(&data).unwrap();
     }
 }

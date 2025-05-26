@@ -43,7 +43,6 @@ mod tests {
     fn parse_sec_body() {
         let data = std::fs::read("../test_sec/TU01EX.SEC").unwrap();
         let (next, header) = SecHeader::from_raw(&data).unwrap();
-        let (_, body) = SecBody::from_raw(&next, header).unwrap();
-        println!("{:?}", body);
+        let (_, _body) = SecBody::from_raw(&next, header).unwrap();
     }
 }

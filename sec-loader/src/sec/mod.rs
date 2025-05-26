@@ -15,28 +15,43 @@ use crate::err::SecError;
 ///
 /// Just the path and SEC bytes.
 struct SecRaw {
+    path: PathBuf,
+
     data: Vec<u8>,
 }
 
 impl SecRaw {
-    pub fn new(data: Vec<u8>) -> Self {
-        Self { data }
+    pub fn new(path: PathBuf) -> anyhow::Result<Self> {
+        let data = std::fs::read(&path).map_err(SecError::OpenFile)?;
+
+        Ok(Self { path, data })
     }
 
     pub fn parse(&mut self) -> anyhow::Result<Sec> {
         let (next, header) = self.parse_header()?;
 
-        let (next, body) = self.parse_body(header)?;
+        let (next, body) = Self::parse_body(next, header.clone())?;
 
-        todo!()
+        let (_, tail) = Self::parse_tail(next)?;
+
+        Ok(Sec {
+            path: self.path.clone(),
+            header,
+            main: body,
+            tail,
+        })
     }
 
-    pub fn parse_header(&mut self) -> IResult<&[u8], SecHeader, SecError> {
+    fn parse_header(&mut self) -> IResult<&[u8], SecHeader, SecError> {
         SecHeader::from_raw(&self.data)
     }
 
-    pub fn parse_body(&mut self, header: SecHeader) -> IResult<&[u8], SecBody, SecError> {
-        SecBody::from_raw(&self.data, header)
+    fn parse_body(data: &[u8], header: SecHeader) -> IResult<&[u8], SecBody, SecError> {
+        SecBody::from_raw(data, header)
+    }
+
+    fn parse_tail(data: &[u8]) -> IResult<&[u8], SecTail, SecError> {
+        SecTail::from_raw(data)
     }
 }
 
@@ -45,6 +60,7 @@ impl SecRaw {
 /// please check cmdt docs
 ///
 /// https://github.com/IanusInferus/cmdt
+#[derive(Debug, Clone)]
 pub struct Sec {
     /// sec file path
     pub path: PathBuf,
@@ -62,10 +78,11 @@ pub struct Sec {
 impl Sec {
     /// Read SEC file from path and then try parse it.
     pub fn from_file(path: PathBuf) -> anyhow::Result<Self> {
-        let data = std::fs::read(path).map_err(SecError::OpenFile)?;
-        let mut raw = SecRaw::new(data);
-        raw.parse()?;
-        todo!()
+        let mut raw = SecRaw::new(path)?;
+
+        let sec = raw.parse()?;
+
+        Ok(sec)
     }
 
     /// Write SEC file to the original path.
@@ -76,5 +93,30 @@ impl Sec {
     /// Write SEC file to the new path.
     pub fn write_back_raw_to(&self, path: PathBuf) -> Result<(), SecError> {
         todo!()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_tu01() {
+        Sec::from_file(PathBuf::from("../test_sec/TU01EX.SEC")).unwrap();
+    }
+
+    #[test]
+    fn test_parse_tu02() {
+        Sec::from_file(PathBuf::from("../test_sec/TU02EX.SEC")).unwrap();
+    }
+
+    #[test]
+    fn test_parse_bu() {
+        Sec::from_file(PathBuf::from("../test_sec/BUEX.SEC")).unwrap();
+    }
+
+    #[test]
+    fn test_parse_is() {
+        Sec::from_file(PathBuf::from("../test_sec/ISEX.SEC")).unwrap();
     }
 }

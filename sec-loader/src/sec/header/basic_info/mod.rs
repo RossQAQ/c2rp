@@ -5,7 +5,7 @@ use crate::err::SecError;
 /// SEC header basic info part.
 ///
 /// ! fix: 这里可能变量名错误
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BasicInfo {
     /// number of plumb lines
     pub(super) plumb_line: i32,

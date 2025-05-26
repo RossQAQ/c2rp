@@ -8,7 +8,7 @@ mod token;
 mod version;
 
 /// SEC header part.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Identify {
     /// version info
     version: VersionSign,
