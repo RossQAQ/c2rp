@@ -4,25 +4,25 @@ use crate::err::SecError;
 
 /// A polygon (if c equles to 0, it's a plane in x-y plane)
 ///
-/// Every plumb line will intersect with that `ax + by + c = 0` plane
-///
-/// `ax + by + c = 0` is the top-face of this polygon
+/// Every plumb line will intersect with that `ax + by + c`
 #[derive(Debug, Clone)]
 pub struct Polygon {
     /// Number of side of the polygon
-    pub(super) sides_num: i32,
+    ///
+    /// If z-axis equals to 0, then the side is actually the border.
+    pub sides_num: i32,
 
     /// Terrain description
-    pub(super) terrain: i64,
+    pub terrain: i64,
 
     /// A coefficient of the x-axis
-    pub(super) ax: f32,
+    pub ax: f32,
 
     /// A coefficient of the y-axis
-    pub(super) by: f32,
+    pub by: f32,
 
     /// a constant
-    pub(super) c: f32,
+    pub c: f32,
 
     /// Unknown data
     pub(super) unknown: Vec<u8>,
@@ -40,7 +40,7 @@ pub struct Polygon {
     pub(super) max_z: f32,
 
     /// Indexes of the polygon sides
-    pub(super) indexes: Vec<i32>,
+    pub side_indexes: Vec<i32>,
 }
 
 #[derive(Debug, Clone)]
@@ -49,14 +49,34 @@ pub struct Polygons {
 }
 
 impl Polygons {
-    pub fn from_raw(raw: &[u8], counts: i32) -> IResult<&[u8], Self, SecError> {
-        let (ret, collection) = count(field_c_parser, counts as usize).parse(raw)?;
+    pub(crate) fn from_raw(raw: &[u8], counts: i32) -> IResult<&[u8], Self, SecError> {
+        let (ret, collection) = count(polygon_parser, counts as usize).parse(raw)?;
 
         Ok((ret, Polygons { collection }))
     }
 }
 
-fn field_c_parser(raw: &[u8]) -> IResult<&[u8], Polygon, SecError> {
+impl IntoIterator for Polygons {
+    type Item = Polygon;
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.collection.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a Polygons {
+    type Item = &'a Polygon;
+
+    type IntoIter = std::slice::Iter<'a, Polygon>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.collection.iter()
+    }
+}
+
+fn polygon_parser(raw: &[u8]) -> IResult<&[u8], Polygon, SecError> {
     let (next, n) = take(4usize)(raw)?;
 
     let n = i32::from_le_bytes(n.try_into().map_err(|_| SecError::FromSliceErr)?);
@@ -131,7 +151,7 @@ fn field_c_parser(raw: &[u8]) -> IResult<&[u8], Polygon, SecError> {
             max_x,
             max_y,
             max_z,
-            indexes,
+            side_indexes: indexes,
         },
     ))
 }

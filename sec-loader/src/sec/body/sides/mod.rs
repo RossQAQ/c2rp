@@ -6,16 +6,16 @@ use crate::err::SecError;
 #[derive(Debug, Clone)]
 pub struct Side {
     /// start plumb line id
-    pub(super) start: i32,
+    pub start: i32,
 
     /// end plumb line id
-    pub(super) end: i32,
+    pub end: i32,
 
     /// belongs to polygon id
-    pub(super) belongs_to_polygon_id: i32,
+    pub belongs_to_polygon_id: i32,
 
-    /// neighber polygon id
-    pub(super) neighber_polygon_id: i32,
+    /// neighbor polygon id
+    pub neighbor_polygon_id: i32,
 
     /// unknown field
     pub(super) unknown: i32,
@@ -26,8 +26,28 @@ pub struct Sides {
     collection: Vec<Side>,
 }
 
+impl IntoIterator for Sides {
+    type Item = Side;
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.collection.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a Sides {
+    type Item = &'a Side;
+
+    type IntoIter = std::slice::Iter<'a, Side>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.collection.iter()
+    }
+}
+
 impl Sides {
-    pub fn from_raw(raw: &[u8], counts: i32) -> IResult<&[u8], Self, SecError> {
+    pub(crate) fn from_raw(raw: &[u8], counts: i32) -> IResult<&[u8], Self, SecError> {
         let (ret, sides) = count(take(20usize), counts as usize).parse(raw)?;
 
         let mut collection = Vec::with_capacity(counts as usize);
@@ -54,11 +74,15 @@ impl Sides {
                 start,
                 end,
                 belongs_to_polygon_id,
-                neighber_polygon_id,
+                neighbor_polygon_id: neighber_polygon_id,
                 unknown,
             });
         }
 
         Ok((ret, Self { collection }))
+    }
+
+    pub fn get(&self, idx: usize) -> Option<&Side> {
+        self.collection.get(idx)
     }
 }

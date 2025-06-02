@@ -1,0 +1,10 @@
+[package]
+name = "bridge"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+sec-loader = { workspace = true, path = "../sec-loader" }

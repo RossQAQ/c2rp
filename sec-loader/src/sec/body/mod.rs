@@ -7,16 +7,16 @@ use crate::err::SecError;
 
 use super::header::SecHeader;
 
-mod plumb_lines;
-mod polygons;
-mod sides;
+pub mod plumb_lines;
+pub mod polygons;
+pub mod sides;
 
 /// SEC body part.
 #[derive(Debug, Clone)]
 pub struct SecBody {
     pub plumb_lines: PlumbLines,
     pub sides: Sides,
-    pub field_c: Polygons,
+    pub polygons: Polygons,
 }
 
 impl SecBody {
@@ -30,7 +30,7 @@ impl SecBody {
             SecBody {
                 plumb_lines,
                 sides,
-                field_c,
+                polygons: field_c,
             },
         ))
     }

@@ -5,7 +5,12 @@ pub mod tail;
 use nom::IResult;
 use std::path::PathBuf;
 
-use body::SecBody;
+use body::{
+    SecBody,
+    plumb_lines::{PlumbLine, PlumbLines},
+    polygons::Polygons,
+    sides::Sides,
+};
 use header::SecHeader;
 use tail::SecTail;
 
@@ -93,6 +98,18 @@ impl Sec {
     /// Write SEC file to the new path.
     pub fn write_back_raw_to(&self, path: PathBuf) -> Result<(), SecError> {
         todo!()
+    }
+
+    pub fn get_plumb_lines(&self) -> &PlumbLines {
+        &self.main.plumb_lines
+    }
+
+    pub fn get_sides(&self) -> &Sides {
+        &self.main.sides
+    }
+
+    pub fn get_polygons(&self) -> &Polygons {
+        &self.main.polygons
     }
 }
 

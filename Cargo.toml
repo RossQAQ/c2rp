@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["route-painter", "sec-loader"]
+members = ["bridge", "route-painter", "sec-loader"]
 
 [workspace.package]
 version = "0.1.0"
@@ -18,6 +18,8 @@ thiserror = "2"
 nom = "8"
 num_enum = "0.7"
 either = "1"
+
+sec-loader = { path = "sec-loader" }
 
 [profile.dev]
 opt-level = 0
