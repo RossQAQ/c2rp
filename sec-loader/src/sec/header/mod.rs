@@ -33,19 +33,19 @@ impl SecHeader {
 
     /// number of plumb lines
     pub fn plumb_lines(&self) -> i32 {
-        self.basic_info.plumb_line
+        self.basic_info.plumb_line_num
     }
 
     pub fn border_num(&self) -> i32 {
-        self.basic_info.border_num
+        self.basic_info.side_face_num
     }
 
     pub fn district_num(&self) -> i32 {
-        self.basic_info.district_num
+        self.basic_info.polygon_num
     }
 
     pub fn special(&self) -> i32 {
-        self.basic_info.special
+        self.basic_info.throughable_side_num
     }
 }
 

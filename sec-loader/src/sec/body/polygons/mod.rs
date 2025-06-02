@@ -2,18 +2,29 @@ use nom::{IResult, Parser, bytes::complete::take, multi::count};
 
 use crate::err::SecError;
 
+/// A polygon (if c equles to 0, it's a plane in x-y plane)
+///
+/// Every plumb line will intersect with that `ax + by + c = 0` plane
+///
+/// `ax + by + c = 0` is the top-face of this polygon
 #[derive(Debug, Clone)]
-pub struct FieldC {
-    pub(super) n: i32,
+pub struct Polygon {
+    /// Number of side of the polygon
+    pub(super) sides_num: i32,
 
+    /// Terrain description
     pub(super) terrain: i64,
 
-    pub(super) kx: f32,
+    /// A coefficient of the x-axis
+    pub(super) ax: f32,
 
-    pub(super) ky: f32,
+    /// A coefficient of the y-axis
+    pub(super) by: f32,
 
-    pub(super) bz: f32,
+    /// a constant
+    pub(super) c: f32,
 
+    /// Unknown data
     pub(super) unknown: Vec<u8>,
 
     pub(super) min_x: f32,
@@ -28,23 +39,24 @@ pub struct FieldC {
 
     pub(super) max_z: f32,
 
+    /// Indexes of the polygon sides
     pub(super) indexes: Vec<i32>,
 }
 
 #[derive(Debug, Clone)]
-pub struct FieldCCollection {
-    collection: Vec<FieldC>,
+pub struct Polygons {
+    collection: Vec<Polygon>,
 }
 
-impl FieldCCollection {
+impl Polygons {
     pub fn from_raw(raw: &[u8], counts: i32) -> IResult<&[u8], Self, SecError> {
         let (ret, collection) = count(field_c_parser, counts as usize).parse(raw)?;
 
-        Ok((ret, FieldCCollection { collection }))
+        Ok((ret, Polygons { collection }))
     }
 }
 
-fn field_c_parser(raw: &[u8]) -> IResult<&[u8], FieldC, SecError> {
+fn field_c_parser(raw: &[u8]) -> IResult<&[u8], Polygon, SecError> {
     let (next, n) = take(4usize)(raw)?;
 
     let n = i32::from_le_bytes(n.try_into().map_err(|_| SecError::FromSliceErr)?);
@@ -53,17 +65,17 @@ fn field_c_parser(raw: &[u8]) -> IResult<&[u8], FieldC, SecError> {
 
     let terrain = i64::from_le_bytes(terrain.try_into().map_err(|_| SecError::FromSliceErr)?);
 
-    let (next, kx) = take(4usize)(next)?;
+    let (next, ax) = take(4usize)(next)?;
 
-    let kx = f32::from_le_bytes(kx.try_into().map_err(|_| SecError::FromSliceErr)?);
+    let ax = f32::from_le_bytes(ax.try_into().map_err(|_| SecError::FromSliceErr)?);
 
-    let (next, ky) = take(4usize)(next)?;
+    let (next, by) = take(4usize)(next)?;
 
-    let ky = f32::from_le_bytes(ky.try_into().map_err(|_| SecError::FromSliceErr)?);
+    let by = f32::from_le_bytes(by.try_into().map_err(|_| SecError::FromSliceErr)?);
 
-    let (next, bz) = take(4usize)(next)?;
+    let (next, c) = take(4usize)(next)?;
 
-    let bz = f32::from_le_bytes(bz.try_into().map_err(|_| SecError::FromSliceErr)?);
+    let c = f32::from_le_bytes(c.try_into().map_err(|_| SecError::FromSliceErr)?);
 
     // C2 24 bytes
     let (next, unknown) = take(24usize)(next)?;
@@ -106,12 +118,12 @@ fn field_c_parser(raw: &[u8]) -> IResult<&[u8], FieldC, SecError> {
 
     Ok((
         ret,
-        FieldC {
-            n,
+        Polygon {
+            sides_num: n,
             terrain,
-            kx,
-            ky,
-            bz,
+            ax,
+            by,
+            c,
             unknown,
             min_x,
             min_y,

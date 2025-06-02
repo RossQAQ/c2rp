@@ -1,34 +1,35 @@
-use field_a::FieldACollection;
-use field_b::FieldBCollection;
-use field_c::FieldCCollection;
 use nom::IResult;
+use plumb_lines::PlumbLines;
+use polygons::Polygons;
+use sides::Sides;
 
 use crate::err::SecError;
 
 use super::header::SecHeader;
 
-mod field_a;
-mod field_b;
-mod field_c;
+mod plumb_lines;
+mod polygons;
+mod sides;
 
+/// SEC body part.
 #[derive(Debug, Clone)]
 pub struct SecBody {
-    pub field_a: FieldACollection,
-    pub field_b: FieldBCollection,
-    pub field_c: FieldCCollection,
+    pub plumb_lines: PlumbLines,
+    pub sides: Sides,
+    pub field_c: Polygons,
 }
 
 impl SecBody {
     pub fn from_raw(raw: &[u8], header: SecHeader) -> IResult<&[u8], Self, SecError> {
-        let (next, field_a) = FieldACollection::from_raw(raw, header.plumb_lines())?;
-        let (next, field_b) = FieldBCollection::from_raw(next, header.border_num())?;
-        let (ret, field_c) = FieldCCollection::from_raw(next, header.district_num())?;
+        let (next, plumb_lines) = PlumbLines::from_raw(raw, header.plumb_lines())?;
+        let (next, sides) = Sides::from_raw(next, header.border_num())?;
+        let (ret, field_c) = Polygons::from_raw(next, header.district_num())?;
 
         Ok((
             ret,
             SecBody {
-                field_a,
-                field_b,
+                plumb_lines,
+                sides,
                 field_c,
             },
         ))
